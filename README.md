@@ -52,10 +52,13 @@ in node, they can get a little hairy.
 
 ###baritone.import(...paths)
 
-Attempts to require `./routes`, `./middleware`, and `./config` within the path provided. A path can also
+Attempts to require `./routes`, `./middleware`, and `./config` within each path provided. A path can also
 be an npm module. For example, in your own app you'll want to `import('baritone')` to load in baritone's
 default routes, middleware, and config. Using `import('.')` will load the routes, middleware, and config
 from the main app's directory.
+
+This design promotes breaking your app into smaller parts based on purpose. For example, you might have
+an accounts directory that includes the routes, middleware, and config associated with accounts.
 
 ###baritone.start()
 

@@ -24,8 +24,14 @@ Because express still has a lot of boiler plate, as well as some common problems
 
 ```javascript
 var baritone = require('baritone');
+
+// retrieve a shared baritone (express) instance
 var app = baritone.app();
+
+// import the config, middleware, and routes of the base directory and baritone
 app.import('.', 'baritone');
+
+// start a server at the default host and port
 app.start();
 ```
 
@@ -53,7 +59,7 @@ from the main app's directory.
 
 ###baritone.start()
 
-Starts a web server. The address and port are retrieved from the config. By default this is 0.0.0.0 and 3000
+Starts a web server. The host and port are retrieved from the config. By default this is 0.0.0.0 and 3000
 respectively. You can change these values by importing your own config file or setting PORT and HOST
 environment variables.
 

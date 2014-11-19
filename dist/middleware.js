@@ -6,8 +6,6 @@ path = require('path');
 
 compression = require('compression');
 
-serveStatic = require('serve-static');
-
 bodyParser = require('body-parser');
 
 methodOverride = require('method-override');

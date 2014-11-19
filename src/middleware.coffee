@@ -3,7 +3,6 @@ path = require 'path'
 compression = require 'compression'
 bodyParser = require 'body-parser'
 methodOverride = require 'method-override'
-session = require 'express-session'
 morgan = require 'morgan'
 baritone = require './app'
 

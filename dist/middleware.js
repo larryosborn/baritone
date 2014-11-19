@@ -1,4 +1,4 @@
-var app, baritone, bodyParser, compression, distPath, methodOverride, morgan, path, serveStatic, session;
+var app, baritone, bodyParser, compression, distPath, methodOverride, morgan, path, serveStatic;
 
 serveStatic = require('serve-static');
 
@@ -9,8 +9,6 @@ compression = require('compression');
 bodyParser = require('body-parser');
 
 methodOverride = require('method-override');
-
-session = require('express-session');
 
 morgan = require('morgan');
 

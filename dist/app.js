@@ -48,25 +48,42 @@ proto = {
     stack = [].slice.apply(arguments);
     stack.forEach((function(_this) {
       return function(moduleId) {
+        var e;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
         try {
           _this.importConfig(main.require(moduleId + '/config'));
-        } catch (_error) {}
+        } catch (_error) {
+          e = _error;
+          if (e.code !== 'MODULE_NOT_FOUND') {
+            throw e;
+          }
+        }
         try {
           return _this.importMiddleware(main.require(moduleId + '/middleware'));
-        } catch (_error) {}
+        } catch (_error) {
+          e = _error;
+          if (e.code !== 'MODULE_NOT_FOUND') {
+            throw e;
+          }
+        }
       };
     })(this));
     stack.forEach((function(_this) {
       return function(moduleId) {
+        var e;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
         try {
           return _this.importRoutes(main.require(moduleId + '/routes'));
-        } catch (_error) {}
+        } catch (_error) {
+          e = _error;
+          if (e.code !== 'MODULE_NOT_FOUND') {
+            throw e;
+          }
+        }
       };
     })(this));
     return this;

@@ -36,12 +36,21 @@ proto =
         stack.forEach (moduleId) =>
             if moduleId.indexOf('.') isnt 0
                 moduleId += '/dist'
-            try @importConfig main.require moduleId + '/config'
-            try @importMiddleware main.require moduleId + '/middleware'
+            try
+                @importConfig main.require moduleId + '/config'
+            catch e
+                throw e if e.code isnt 'MODULE_NOT_FOUND'
+            try
+                @importMiddleware main.require moduleId + '/middleware'
+            catch e
+                throw e if e.code isnt 'MODULE_NOT_FOUND'
         stack.forEach (moduleId) =>
             if moduleId.indexOf('.') isnt 0
                 moduleId += '/dist'
-            try @importRoutes main.require moduleId + '/routes'
+            try
+                @importRoutes main.require moduleId + '/routes'
+            catch e
+                throw e if e.code isnt 'MODULE_NOT_FOUND'
         return this
 
     importConfig: (config) ->

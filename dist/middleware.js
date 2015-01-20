@@ -1,6 +1,4 @@
-var app, baritone, bodyParser, compression, distPath, methodOverride, morgan, path, serveStatic;
-
-serveStatic = require('serve-static');
+var app, baritone, bodyParser, compression, distPath, methodOverride, morgan, path;
 
 path = require('path');
 
@@ -30,8 +28,6 @@ app.use(bodyParser.urlencoded({
 
 app.use(methodOverride());
 
-app.use('/static/js', serveStatic(path.join(distPath, 'js', 'client')));
-
-app.use('/static', serveStatic(path.join(distPath)));
+app.use('/static', app.express["static"](distPath));
 
 module.exports = app;

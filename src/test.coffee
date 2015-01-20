@@ -36,7 +36,7 @@ describe 'baritone', ->
 
     it 'serves static files from dist', (done) ->
         chai.request app
-            .get '/static/js/sample.js'
+            .get '/static/js/client/sample.js'
             .end (err, res) ->
                 expect(err).to.not.be.ok
                 expect(res).to.have.status '200'

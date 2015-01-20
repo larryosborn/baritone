@@ -21,6 +21,7 @@ main = null;
 module.exports = baritone = function() {
   var app, mainPath, packageFile;
   app = _.extend(express(), proto);
+  app.express = express;
   main = module.parent || require.main;
   mainPath = path.resolve(path.dirname(main.filename));
   app.set('cwd', mainPath);

@@ -1,4 +1,3 @@
-serveStatic = require 'serve-static'
 path = require 'path'
 compression = require 'compression'
 bodyParser = require 'body-parser'
@@ -15,7 +14,6 @@ app.use bodyParser.json()
 app.use bodyParser.urlencoded extended: true
 app.use methodOverride()
 
-app.use '/static/js', serveStatic path.join distPath, 'js', 'client'
-app.use '/static', serveStatic path.join distPath
+app.use '/static', app.express.static distPath
 
 module.exports = app

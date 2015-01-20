@@ -13,7 +13,7 @@ defaults =
     port: 3000
     host: '0.0.0.0'
     secret: 'change me'
-    hidden: ['base_path', 'cwd', 'dist_path', 'html', 'secret', 'views']
+    hidden: ['secret']
 
 # env config
 env = {}

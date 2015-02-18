@@ -24,9 +24,7 @@ defaults = {
 env = {};
 
 Object.keys(process.env).forEach(function(envVar) {
-  if (defaults[envVar.toLowerCase()]) {
-    return env[envVar.toLowerCase()] = process.env[envVar];
-  }
+  return env[envVar.toLowerCase()] = process.env[envVar];
 });
 
 config = _.extend({}, defaults, env);

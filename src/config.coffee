@@ -18,7 +18,7 @@ defaults =
 # env config
 env = {}
 Object.keys(process.env).forEach (envVar) ->
-    env[envVar.toLowerCase()] = process.env[envVar] if defaults[envVar.toLowerCase()]
+    env[envVar.toLowerCase()] = process.env[envVar]
 
 # merge env into defaults to create config
 config = _.extend {}, defaults, env

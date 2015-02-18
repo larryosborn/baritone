@@ -90,10 +90,14 @@ proto = {
     return this;
   },
   importConfig: function(config) {
+    var env;
     if (typeof config === 'object') {
+      env = process.env;
       Object.keys(config).forEach((function(_this) {
         return function(option) {
-          if (typeof _this.get(option) === 'undefined') {
+          if (typeof env[option.toUpperCase()] !== 'undefined') {
+            return _this.set(option, env[option.toUpperCase()]);
+          } else {
             return _this.set(option, config[option]);
           }
         };

@@ -56,8 +56,11 @@ proto =
 
     importConfig: (config) ->
         if typeof config is 'object'
+            env = process.env
             Object.keys(config).forEach (option) =>
-                if typeof @get(option) is 'undefined'
+                if typeof env[option.toUpperCase()] isnt 'undefined'
+                    @set option, env[option.toUpperCase()]
+                else
                     @set option, config[option]
         return this
 

@@ -7,21 +7,13 @@ app = baritone.app()
 basePath = app.get 'base_path'
 
 # default config
-defaults =
+config =
     dist_path: path.join basePath, 'dist'
     html: path.join basePath, 'dist', 'html', 'index.html'
     port: 3000
     host: '0.0.0.0'
     secret: 'change me'
     hidden: ['secret']
-
-# env config
-env = {}
-Object.keys(process.env).forEach (envVar) ->
-    env[envVar.toLowerCase()] = process.env[envVar]
-
-# merge env into defaults to create config
-config = _.extend {}, defaults, env
 
 # package.json
 config.package = require path.join basePath, 'package.json'

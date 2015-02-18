@@ -1,4 +1,4 @@
-var app, baritone, basePath, config, defaults, env, fs, path, _;
+var app, baritone, basePath, config, fs, path, _;
 
 path = require('path');
 
@@ -12,7 +12,7 @@ app = baritone.app();
 
 basePath = app.get('base_path');
 
-defaults = {
+config = {
   dist_path: path.join(basePath, 'dist'),
   html: path.join(basePath, 'dist', 'html', 'index.html'),
   port: 3000,
@@ -20,14 +20,6 @@ defaults = {
   secret: 'change me',
   hidden: ['secret']
 };
-
-env = {};
-
-Object.keys(process.env).forEach(function(envVar) {
-  return env[envVar.toLowerCase()] = process.env[envVar];
-});
-
-config = _.extend({}, defaults, env);
 
 config["package"] = require(path.join(basePath, 'package.json'));
 

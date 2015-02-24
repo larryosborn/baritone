@@ -15,7 +15,14 @@ config =
     secret: 'change me'
     hidden: ['secret']
 
+# build.json for deployment time options
+try
+    buildFile = path.join basePath, 'build.json'
+    config.build = require buildFile
+
 # package.json
-config.package = require path.join basePath, 'package.json'
+try
+    packageFile = path.join basePath, 'package.json'
+    config.build = require buildFile
 
 module.exports = config

@@ -32,6 +32,8 @@ describe 'baritone', ->
                 expect(res.body.port).to.equal app.get 'port'
                 expect(res.body.host).to.equal app.get 'host'
                 expect(res.body.env).to.equal app.get 'env'
+                expect(res.body.hidden).to.be.undefined
+                expect(res.body.secret).to.be.undefined
                 done()
 
     it 'serves static files from dist', (done) ->

@@ -1,4 +1,4 @@
-var app, baritone, basePath, config, fs, path, _;
+var app, baritone, basePath, buildFile, config, fs, packageFile, path, _;
 
 path = require('path');
 
@@ -21,6 +21,14 @@ config = {
   hidden: ['secret']
 };
 
-config["package"] = require(path.join(basePath, 'package.json'));
+try {
+  buildFile = path.join(basePath, 'build.json');
+  config.build = require(buildFile);
+} catch (_error) {}
+
+try {
+  packageFile = path.join(basePath, 'package.json');
+  config.build = require(buildFile);
+} catch (_error) {}
 
 module.exports = config;

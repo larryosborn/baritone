@@ -39,6 +39,8 @@ describe('baritone', function() {
       expect(res.body.env).to.equal(app.get('env'));
       expect(res.body.hidden).to.be.undefined;
       expect(res.body.secret).to.be.undefined;
+      expect(res.body.build).to.have.property('tag');
+      expect(res.body["package"]).to.have.property('name');
       return done();
     });
   });

@@ -28,7 +28,7 @@ try {
 
 try {
   packageFile = path.join(basePath, 'package.json');
-  config.build = require(buildFile);
+  config["package"] = require(packageFile);
 } catch (_error) {}
 
 module.exports = config;

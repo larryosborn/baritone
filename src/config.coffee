@@ -23,6 +23,6 @@ try
 # package.json
 try
     packageFile = path.join basePath, 'package.json'
-    config.build = require buildFile
+    config.package = require packageFile
 
 module.exports = config

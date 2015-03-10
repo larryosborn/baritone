@@ -1,4 +1,4 @@
-var baritone, chalk, events, express, fs, http, instance, main, notifier, path, proto, _;
+var baritone, chalk, events, express, fs, handleImportException, http, instance, main, notifier, path, proto, _;
 
 http = require('http');
 
@@ -60,17 +60,13 @@ proto = {
           _this.importConfig(main.require(moduleId + '/config'));
         } catch (_error) {
           e = _error;
-          if (e.code !== 'MODULE_NOT_FOUND') {
-            throw e;
-          }
+          handleImportException(moduleId + '/config', e);
         }
         try {
           return _this.importMiddleware(main.require(moduleId + '/middleware'));
         } catch (_error) {
           e = _error;
-          if (e.code !== 'MODULE_NOT_FOUND') {
-            throw e;
-          }
+          return handleImportException(moduleId + '/middleware', e);
         }
       };
     })(this));
@@ -84,9 +80,7 @@ proto = {
           return _this.importRoutes(main.require(moduleId + '/routes'));
         } catch (_error) {
           e = _error;
-          if (e.code !== 'MODULE_NOT_FOUND') {
-            throw e;
-          }
+          return handleImportException(moduleId + '/routes', e);
         }
       };
     })(this));
@@ -160,7 +154,20 @@ proto = {
   }
 };
 
+handleImportException = function(moduleId, e) {
+  var errorMessage, missingModuleId;
+  if (e.code === 'MODULE_NOT_FOUND') {
+    errorMessage = e.message;
+    missingModuleId = errorMessage.match(/'([^']+)'/);
+    if (missingModuleId && missingModuleId[1] && missingModuleId[1] !== moduleId) {
+      throw e;
+    }
+  } else {
+    throw e;
+  }
+};
+
 if (require.main === module) {
   module.exports = baritone();
-  module.exports["import"]('.').start();
+  module.exports["import"]('.', './foo').start();
 }

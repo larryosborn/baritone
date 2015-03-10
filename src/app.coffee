@@ -42,18 +42,18 @@ proto =
             try
                 @importConfig main.require moduleId + '/config'
             catch e
-                throw e if e.code isnt 'MODULE_NOT_FOUND'
+                handleImportException moduleId + '/config', e
             try
                 @importMiddleware main.require moduleId + '/middleware'
             catch e
-                throw e if e.code isnt 'MODULE_NOT_FOUND'
+                handleImportException moduleId + '/middleware', e
         stack.forEach (moduleId) =>
             if moduleId.indexOf('.') isnt 0
                 moduleId += '/dist'
             try
                 @importRoutes main.require moduleId + '/routes'
             catch e
-                throw e if e.code isnt 'MODULE_NOT_FOUND'
+                handleImportException moduleId + '/routes', e
         return this
 
     importConfig: (config) ->
@@ -98,6 +98,15 @@ proto =
             console.log chalk.green('Server running at') + ' ' + chalk.green.underline url
         return server
 
+handleImportException = (moduleId, e) ->
+    if e.code is 'MODULE_NOT_FOUND'
+        errorMessage = e.message
+        missingModuleId = errorMessage.match /'([^']+)'/
+        if missingModuleId and missingModuleId[1] and missingModuleId[1] isnt moduleId
+            throw e
+    else
+        throw e
+
 if require.main is module
     module.exports = baritone()
-    module.exports.import('.').start()
+    module.exports.import('.', './foo').start()

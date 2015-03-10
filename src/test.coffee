@@ -47,3 +47,11 @@ describe 'baritone', ->
                 expect(res).to.have.header 'content-type', 'application/javascript'
                 done()
 
+    it 'correctly handles events', (done) ->
+        emitted = false
+        app.events.once 'example', (arg) ->
+            emitted = arg
+        app.events.emit 'example', true
+        expect(emitted).to.be.true
+        done()
+

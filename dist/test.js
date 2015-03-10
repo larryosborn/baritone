@@ -44,12 +44,22 @@ describe('baritone', function() {
       return done();
     });
   });
-  return it('serves static files from dist', function(done) {
+  it('serves static files from dist', function(done) {
     return chai.request(app).get('/static/js/client/sample.js').end(function(err, res) {
       expect(err).to.not.be.ok;
       expect(res).to.have.status('200');
       expect(res).to.have.header('content-type', 'application/javascript');
       return done();
     });
+  });
+  return it('correctly handles events', function(done) {
+    var emitted;
+    emitted = false;
+    app.events.once('example', function(arg) {
+      return emitted = arg;
+    });
+    app.events.emit('example', true);
+    expect(emitted).to.be["true"];
+    return done();
   });
 });

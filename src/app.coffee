@@ -5,6 +5,7 @@ path = require 'path'
 notifier = require 'node-notifier'
 express = require 'express'
 _ = require 'underscore'
+events = require 'events'
 
 instance = null
 main = null
@@ -19,6 +20,7 @@ module.exports = baritone = ->
     while not fs.existsSync packageFile
         packageFile = path.resolve path.dirname(packageFile), '..', 'package.json'
     app.set 'base_path', path.dirname packageFile
+    app.events = new events.EventEmitter()
     return instance = app
 
 baritone.app = ->

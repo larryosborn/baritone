@@ -1,4 +1,4 @@
-var baritone, chalk, express, fs, http, instance, main, notifier, path, proto, _;
+var baritone, chalk, events, express, fs, http, instance, main, notifier, path, proto, _;
 
 http = require('http');
 
@@ -13,6 +13,8 @@ notifier = require('node-notifier');
 express = require('express');
 
 _ = require('underscore');
+
+events = require('events');
 
 instance = null;
 
@@ -30,6 +32,7 @@ module.exports = baritone = function() {
     packageFile = path.resolve(path.dirname(packageFile), '..', 'package.json');
   }
   app.set('base_path', path.dirname(packageFile));
+  app.events = new events.EventEmitter();
   return instance = app;
 };
 

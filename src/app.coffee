@@ -82,10 +82,11 @@ proto =
                 view: view
                 data: res.locals
         else
-            fs.readFile @get('html'), 'utf8', (err, html) ->
+            index = path.join @get('html'), 'index.html'
+            fs.readFile index, 'utf8', (err, html) ->
                 if err
-                    return res.send 500
-                res.send path.join html, 'index.html'
+                    return res.sendStatus 500
+                res.send html
         return this
 
     start: ->

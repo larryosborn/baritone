@@ -115,19 +115,17 @@ proto = {
     return this;
   },
   render: function(req, res, view) {
-    var data;
     if (req.xhr) {
-      data = _.extend({}, res.locals);
-      res.jsonp({
+      res.send({
         view: view,
-        data: data
+        data: res.locals
       });
     } else {
       fs.readFile(this.get('html'), 'utf8', function(err, html) {
         if (err) {
           return res.send(500);
         }
-        return res.send(html);
+        return res.send(path.join(html, 'index.html'));
       });
     }
     return this;
@@ -169,5 +167,5 @@ handleImportException = function(moduleId, e) {
 
 if (require.main === module) {
   module.exports = baritone();
-  module.exports["import"]('.', './foo').start();
+  module.exports["import"]('.', './missing').start();
 }

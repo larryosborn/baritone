@@ -9,7 +9,7 @@ basePath = app.get 'base_path'
 # default config
 config =
     dist_path: path.join basePath, 'dist'
-    html: path.join basePath, 'dist', 'html', 'index.html'
+    html: path.join basePath, 'dist', 'html'
     port: 3000
     host: '0.0.0.0'
     secret: 'change me'

@@ -78,15 +78,14 @@ proto =
 
     render: (req, res, view) ->
         if req.xhr
-            data = _.extend {}, res.locals
-            res.jsonp
+            res.send
                 view: view
-                data: data
+                data: res.locals
         else
             fs.readFile @get('html'), 'utf8', (err, html) ->
                 if err
                     return res.send 500
-                res.send html
+                res.send path.join html, 'index.html'
         return this
 
     start: ->
@@ -109,4 +108,4 @@ handleImportException = (moduleId, e) ->
 
 if require.main is module
     module.exports = baritone()
-    module.exports.import('.', './foo').start()
+    module.exports.import('.', './missing').start()

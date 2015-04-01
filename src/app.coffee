@@ -77,7 +77,7 @@ proto =
         return this
 
     render: (req, res, view) ->
-        if req.xhr
+        if req.xhr or req.query.callback
             res.send
                 view: view
                 data: res.locals

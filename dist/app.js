@@ -117,7 +117,7 @@ proto = {
   render: function(req, res, view) {
     var index;
     if (req.xhr || req.query.callback) {
-      res.send({
+      res.jsonp({
         view: view,
         data: res.locals
       });

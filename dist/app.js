@@ -1,4 +1,4 @@
-var baritone, chalk, events, express, fs, handleImportException, http, instance, main, notifier, path, proto, _;
+var _, baritone, chalk, events, express, fs, handleImportException, http, instance, main, notifier, path, proto;
 
 http = require('http');
 
@@ -116,7 +116,7 @@ proto = {
   },
   render: function(req, res, view) {
     var index;
-    if (req.xhr) {
+    if (req.xhr || req.query.callback) {
       res.send({
         view: view,
         data: res.locals

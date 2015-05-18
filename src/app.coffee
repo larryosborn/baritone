@@ -76,11 +76,13 @@ proto =
             @use routes
         return this
 
-    render: (req, res, view) ->
-        if req.xhr or req.query.callback
+    pjax: (req, res, view) ->
+        if req.xhr or req.query and req.query.callback
             res.jsonp
                 view: view
                 data: res.locals
+        else if @get 'view engine'
+            res.render 'index', res.locals
         else
             index = path.join @get('html'), 'index.html'
             fs.readFile index, 'utf8', (err, html) ->

@@ -1,4 +1,4 @@
-var _, controllers;
+var controllers, _;
 
 _ = require('underscore');
 

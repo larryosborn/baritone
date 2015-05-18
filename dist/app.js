@@ -1,4 +1,4 @@
-var _, baritone, chalk, events, express, fs, handleImportException, http, instance, main, notifier, path, proto;
+var baritone, chalk, events, express, fs, handleImportException, http, instance, main, notifier, path, proto, _;
 
 http = require('http');
 
@@ -114,13 +114,15 @@ proto = {
     }
     return this;
   },
-  render: function(req, res, view) {
+  pjax: function(req, res, view) {
     var index;
-    if (req.xhr || req.query.callback) {
+    if (req.xhr || req.query && req.query.callback) {
       res.jsonp({
         view: view,
         data: res.locals
       });
+    } else if (this.get('view engine')) {
+      res.render('index', res.locals);
     } else {
       index = path.join(this.get('html'), 'index.html');
       fs.readFile(index, 'utf8', function(err, html) {

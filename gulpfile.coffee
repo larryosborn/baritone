@@ -19,10 +19,14 @@ handleErrors = ->
 gulp.task 'default', ['build']
 
 gulp.task 'build', (callback) ->
-    runSequence('clean', 'coffee', callback)
+    runSequence 'clean', 'coffee', 'html', callback
 
 gulp.task 'clean', (callback) ->
     del ['./dist'], callback
+
+gulp.task 'html', ->
+    gulp.src './src/**/*.html'
+        .pipe gulp.dest 'dist'
 
 gulp.task 'coffee', ->
     gulp.src './src/**/*.coffee'

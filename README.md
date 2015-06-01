@@ -66,7 +66,7 @@ Starts a web server. The host and port are retrieved from the config. By default
 respectively. You can change these values by importing your own config file or setting PORT and HOST
 environment variables.
 
-###bartione.render(req, res, view)
+###bartione.pjax(req, res, view)
 
 If the request is an XHR, it responds with the `{view: view, data: res.locals}`. If the request is not an XHR,
 it will send the html file set by the `html` config option. It's up to your client code to retrieve view modules

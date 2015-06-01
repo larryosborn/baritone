@@ -1,4 +1,4 @@
-var baritone, chalk, events, express, fs, handleImportException, http, instance, main, notifier, path, proto, _;
+var baritone, chalk, events, express, fs, handleImportException, http, instance, main, path, proto, _;
 
 http = require('http');
 
@@ -7,8 +7,6 @@ chalk = require('chalk');
 fs = require('fs');
 
 path = require('path');
-
-notifier = require('node-notifier');
 
 express = require('express');
 
@@ -142,12 +140,6 @@ proto = {
         url = ['http://', server.address().address, ':', server.address().port, '/'].join('');
         if (_this.get('node_env') === 'development') {
           chalk.enabled = true;
-          notifier.notify({
-            title: _this.get('package').name,
-            message: 'Server running at ' + url
-          }, function(err, response) {
-            return console.error(err);
-          });
         }
         return console.log(chalk.green('Server running at') + ' ' + chalk.green.underline(url));
       };

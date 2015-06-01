@@ -2,7 +2,6 @@ http = require 'http'
 chalk = require 'chalk'
 fs = require 'fs'
 path = require 'path'
-notifier = require 'node-notifier'
 express = require 'express'
 _ = require 'underscore'
 events = require 'events'
@@ -96,7 +95,6 @@ proto =
             url = ['http://', server.address().address, ':', server.address().port, '/'].join('')
             if @get('node_env') is 'development'
                 chalk.enabled = true
-                notifier.notify { title: @get('package').name, message: 'Server running at ' + url }, (err, response) -> console.error err
             console.log chalk.green('Server running at') + ' ' + chalk.green.underline url
         return server
 

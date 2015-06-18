@@ -14,6 +14,6 @@ app.use bodyParser.json()
 app.use bodyParser.urlencoded extended: true
 app.use methodOverride()
 
-app.use '/static', app.express.static distPath
+app.use '/static', app.express.static distPath, maxAge: app.get 'max_age'
 
 module.exports = app

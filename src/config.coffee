@@ -15,6 +15,7 @@ config =
     host: '0.0.0.0'
     secret: 'change me'
     hidden: ['secret']
+    max_age: 1000 * 60 * 60 * 24 * 365 # one year
 
 # build.json for deployment time options
 try

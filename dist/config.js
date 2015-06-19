@@ -19,7 +19,8 @@ config = {
   port: 3000,
   host: '0.0.0.0',
   secret: 'change me',
-  hidden: ['secret']
+  hidden: ['secret'],
+  max_age: 1000 * 60 * 60 * 24 * 365
 };
 
 try {

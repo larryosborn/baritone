@@ -28,6 +28,8 @@ app.use(bodyParser.urlencoded({
 
 app.use(methodOverride());
 
-app.use('/static', app.express["static"](distPath));
+app.use('/static', app.express["static"](distPath, {
+  maxAge: app.get('max_age')
+}));
 
 module.exports = app;

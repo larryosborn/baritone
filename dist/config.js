@@ -1,4 +1,4 @@
-var app, baritone, basePath, buildFile, config, fs, packageFile, path, _;
+var _, app, baritone, basePath, buildFile, config, fs, packageFile, path;
 
 path = require('path');
 

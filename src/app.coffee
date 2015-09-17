@@ -87,22 +87,33 @@ proto =
             index = path.join @get('html'), 'index.html'
             fs.readFile index, 'utf8', (err, html) ->
                 if err
+                    console.error err
                     return res.sendStatus 500
                 res.send html
         return this
 
     start: ->
-        ssl = @get 'ssl'
+        use_ssl = @get 'use_ssl'
+        force_ssl = @get 'force_ssl'
+        base_path = @get 'base_path'
+        ssl_key_path = @get 'ssl_key_path'
+        ssl_cert_path = @get 'ssl_cert_path'
+        protocol = if use_ssl then 'https://' else 'http://'
         callback = =>
-            protocol = if ssl then 'https://' else 'http://'
             url = [protocol, server.address().address, ':', server.address().port, '/'].join('')
             chalk.enabled = true if @get('node_env') is 'development'
             console.log chalk.green('Server running at') + ' ' + chalk.green.underline url
-        if ssl is true
+        if use_ssl is true
             options =
-                key: fs.readFileSync path.join @get('base_path'), @get('ssl_key_path')
-                cert: fs.readFileSync path.join @get('base_path'), @get('ssl_cert_path')
+                key: fs.readFileSync path.join base_path, ssl_key_path or ssl_cert_path
+                cert: fs.readFileSync path.join base_path, ssl_cert_path
             server = https.createServer(options, this).listen @get('port'), @get('host'), callback
+            if force_ssl is true
+                httpServer = http.createServer (req, res) ->
+                    res.writeHead 301, Location: protocol + req.headers.host + req.url
+                    res.end()
+                httpServer.listen 80, @get('host'), =>
+                    console.log chalk.green('Server running at') + ' ' + chalk.green.underline 'http://' + @get('host') + ':80/'
         else
             server = @listen @get('port'), @get('host'), callback
         return server

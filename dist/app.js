@@ -127,6 +127,7 @@ proto = {
       index = path.join(this.get('html'), 'index.html');
       fs.readFile(index, 'utf8', function(err, html) {
         if (err) {
+          console.error(err);
           return res.sendStatus(500);
         }
         return res.send(html);
@@ -135,12 +136,16 @@ proto = {
     return this;
   },
   start: function() {
-    var callback, options, server, ssl;
-    ssl = this.get('ssl');
+    var base_path, callback, force_ssl, httpServer, options, protocol, server, ssl_cert_path, ssl_key_path, use_ssl;
+    use_ssl = this.get('use_ssl');
+    force_ssl = this.get('force_ssl');
+    base_path = this.get('base_path');
+    ssl_key_path = this.get('ssl_key_path');
+    ssl_cert_path = this.get('ssl_cert_path');
+    protocol = use_ssl ? 'https://' : 'http://';
     callback = (function(_this) {
       return function() {
-        var protocol, url;
-        protocol = ssl ? 'https://' : 'http://';
+        var url;
         url = [protocol, server.address().address, ':', server.address().port, '/'].join('');
         if (_this.get('node_env') === 'development') {
           chalk.enabled = true;
@@ -148,12 +153,25 @@ proto = {
         return console.log(chalk.green('Server running at') + ' ' + chalk.green.underline(url));
       };
     })(this);
-    if (ssl === true) {
+    if (use_ssl === true) {
       options = {
-        key: fs.readFileSync(path.join(this.get('base_path'), this.get('ssl_key_path'))),
-        cert: fs.readFileSync(path.join(this.get('base_path'), this.get('ssl_cert_path')))
+        key: fs.readFileSync(path.join(base_path, ssl_key_path || ssl_cert_path)),
+        cert: fs.readFileSync(path.join(base_path, ssl_cert_path))
       };
       server = https.createServer(options, this).listen(this.get('port'), this.get('host'), callback);
+      if (force_ssl === true) {
+        httpServer = http.createServer(function(req, res) {
+          res.writeHead(301, {
+            Location: protocol + req.headers.host + req.url
+          });
+          return res.end();
+        });
+        httpServer.listen(80, this.get('host'), (function(_this) {
+          return function() {
+            return console.log(chalk.green('Server running at') + ' ' + chalk.green.underline('http://' + _this.get('host') + ':80/'));
+          };
+        })(this));
+      }
     } else {
       server = this.listen(this.get('port'), this.get('host'), callback);
     }

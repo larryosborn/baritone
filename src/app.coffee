@@ -5,6 +5,7 @@ path = require 'path'
 express = require 'express'
 _ = require 'underscore'
 events = require 'events'
+https = require 'https'
 
 instance = null
 main = null
@@ -91,11 +92,19 @@ proto =
         return this
 
     start: ->
-        server = @listen @get('port'), @get('host'), =>
-            url = ['http://', server.address().address, ':', server.address().port, '/'].join('')
-            if @get('node_env') is 'development'
-                chalk.enabled = true
+        ssl = @get 'ssl'
+        callback = =>
+            protocol = if ssl then 'https://' else 'http://'
+            url = [protocol, server.address().address, ':', server.address().port, '/'].join('')
+            chalk.enabled = true if @get('node_env') is 'development'
             console.log chalk.green('Server running at') + ' ' + chalk.green.underline url
+        if ssl is true
+            options =
+                key: fs.readFileSync path.join @get('base_path'), @get('ssl_key_path')
+                cert: fs.readFileSync path.join @get('base_path'), @get('ssl_cert_path')
+            server = https.createServer(options, this).listen @get('port'), @get('host'), callback
+        else
+            server = @listen @get('port'), @get('host'), callback
         return server
 
 handleImportException = (moduleId, e) ->

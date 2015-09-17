@@ -1,4 +1,4 @@
-var baritone, chalk, events, express, fs, handleImportException, http, instance, main, path, proto, _;
+var _, baritone, chalk, events, express, fs, handleImportException, http, https, instance, main, path, proto;
 
 http = require('http');
 
@@ -13,6 +13,8 @@ express = require('express');
 _ = require('underscore');
 
 events = require('events');
+
+https = require('https');
 
 instance = null;
 
@@ -133,17 +135,28 @@ proto = {
     return this;
   },
   start: function() {
-    var server;
-    server = this.listen(this.get('port'), this.get('host'), (function(_this) {
+    var callback, options, server, ssl;
+    ssl = this.get('ssl');
+    callback = (function(_this) {
       return function() {
-        var url;
-        url = ['http://', server.address().address, ':', server.address().port, '/'].join('');
+        var protocol, url;
+        protocol = ssl ? 'https://' : 'http://';
+        url = [protocol, server.address().address, ':', server.address().port, '/'].join('');
         if (_this.get('node_env') === 'development') {
           chalk.enabled = true;
         }
         return console.log(chalk.green('Server running at') + ' ' + chalk.green.underline(url));
       };
-    })(this));
+    })(this);
+    if (ssl === true) {
+      options = {
+        key: fs.readFileSync(path.join(this.get('base_path'), this.get('ssl_key_path'))),
+        cert: fs.readFileSync(path.join(this.get('base_path'), this.get('ssl_cert_path')))
+      };
+      server = https.createServer(options, this).listen(this.get('port'), this.get('host'), callback);
+    } else {
+      server = this.listen(this.get('port'), this.get('host'), callback);
+    }
     return server;
   }
 };

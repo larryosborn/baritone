@@ -103,7 +103,7 @@ proto =
             url = [protocol, server.address().address, ':', server.address().port, '/'].join('')
             chalk.enabled = true if @get('node_env') is 'development'
             console.log chalk.green('Server running at') + ' ' + chalk.green.underline url
-        if use_ssl is true
+        if use_ssl
             options =
                 key: fs.readFileSync path.join base_path, ssl_key_path or ssl_cert_path
                 cert: fs.readFileSync path.join base_path, ssl_cert_path

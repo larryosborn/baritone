@@ -6,6 +6,7 @@ express = require 'express'
 _ = require 'underscore'
 events = require 'events'
 https = require 'https'
+mustache = require 'mustache'
 
 instance = null
 main = null
@@ -84,13 +85,22 @@ proto =
         else if @get 'view engine'
             res.render 'index', res.locals
         else
-            index = path.join @get('html'), 'index.html'
-            fs.readFile index, 'utf8', (err, html) ->
+            @parseIndexHtml (err, html) ->
                 if err
                     console.error err
                     return res.sendStatus 500
                 res.send html
         return this
+
+    parseIndexHtml: (callback) ->
+        indexHtml = @get 'indexHtml'
+        return callback(null, indexHtml) if indexHtml
+        index = path.join @get('html'), 'index.html'
+        fs.readFile index, 'utf8', (err, html) =>
+            return callbackr(err) if err
+            indexHtml = mustache.render html, { package: @get('package'), cacheBust: Date.now() }
+            @set 'indexHtml', indexHtml
+            return callback null, indexHtml
 
     start: ->
         use_ssl = @get 'use_ssl'

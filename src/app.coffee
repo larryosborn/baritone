@@ -98,7 +98,7 @@ proto =
         index = path.join @get('html'), 'index.html'
         fs.readFile index, 'utf8', (err, html) =>
             return callbackr(err) if err
-            indexHtml = mustache.render html, { package: @get('package'), cacheBust: (new Date).getTime() }
+            indexHtml = mustache.render html, { package: @get('package'), cacheBust: Date.now() }
             @set 'indexHtml', indexHtml
             return callback null, indexHtml
 

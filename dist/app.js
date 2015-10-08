@@ -1,4 +1,4 @@
-var _, baritone, chalk, events, express, fs, handleImportException, http, https, instance, main, path, proto;
+var _, baritone, chalk, events, express, fs, handleImportException, http, https, instance, main, mustache, path, proto;
 
 http = require('http');
 
@@ -15,6 +15,8 @@ _ = require('underscore');
 events = require('events');
 
 https = require('https');
+
+mustache = require('mustache');
 
 instance = null;
 
@@ -52,34 +54,34 @@ proto = {
     stack = [].slice.apply(arguments);
     stack.forEach((function(_this) {
       return function(moduleId) {
-        var e;
+        var e, error, error1;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
         try {
           _this.importConfig(main.require(moduleId + '/config'));
-        } catch (_error) {
-          e = _error;
+        } catch (error) {
+          e = error;
           handleImportException(moduleId + '/config', e);
         }
         try {
           return _this.importMiddleware(main.require(moduleId + '/middleware'));
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           return handleImportException(moduleId + '/middleware', e);
         }
       };
     })(this));
     stack.forEach((function(_this) {
       return function(moduleId) {
-        var e;
+        var e, error;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
         try {
           return _this.importRoutes(main.require(moduleId + '/routes'));
-        } catch (_error) {
-          e = _error;
+        } catch (error) {
+          e = error;
           return handleImportException(moduleId + '/routes', e);
         }
       };
@@ -115,7 +117,6 @@ proto = {
     return this;
   },
   pjax: function(req, res, view) {
-    var index;
     if (req.xhr || req.query && req.query.callback) {
       res.jsonp({
         view: view,
@@ -124,8 +125,7 @@ proto = {
     } else if (this.get('view engine')) {
       res.render('index', res.locals);
     } else {
-      index = path.join(this.get('html'), 'index.html');
-      fs.readFile(index, 'utf8', function(err, html) {
+      this.parseIndexHtml(function(err, html) {
         if (err) {
           console.error(err);
           return res.sendStatus(500);
@@ -134,6 +134,27 @@ proto = {
       });
     }
     return this;
+  },
+  parseIndexHtml: function(callback) {
+    var index, indexHtml;
+    indexHtml = this.get('indexHtml');
+    if (indexHtml) {
+      return callback(null, indexHtml);
+    }
+    index = path.join(this.get('html'), 'index.html');
+    return fs.readFile(index, 'utf8', (function(_this) {
+      return function(err, html) {
+        if (err) {
+          return callbackr(err);
+        }
+        indexHtml = mustache.render(html, {
+          "package": _this.get('package'),
+          cacheBust: Date.now()
+        });
+        _this.set('indexHtml', indexHtml);
+        return callback(null, indexHtml);
+      };
+    })(this));
   },
   start: function() {
     var base_path, callback, force_ssl, httpServer, options, protocol, server, ssl_cert_path, ssl_key_path, use_ssl;
@@ -153,7 +174,7 @@ proto = {
         return console.log(chalk.green('Server running at') + ' ' + chalk.green.underline(url));
       };
     })(this);
-    if (use_ssl === true) {
+    if (use_ssl) {
       options = {
         key: fs.readFileSync(path.join(base_path, ssl_key_path || ssl_cert_path)),
         cert: fs.readFileSync(path.join(base_path, ssl_cert_path))

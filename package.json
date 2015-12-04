@@ -1,6 +1,6 @@
 {
   "name": "baritone",
-  "version": "1.1.5",
+  "version": "2.0.0",
   "private": false,
   "description": "A barebone express server",
   "license": "MIT",
@@ -25,14 +25,14 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "chai": "^2.3.0",
+    "chai": "^3.4.1",
     "chai-http": "^1.0.0",
     "coffee-script": "^1.9.2",
-    "del": "^1.1.1",
+    "del": "^2.1.0",
     "gulp": "^3.8.11",
     "gulp-coffee": "^2.3.1",
     "gulp-coffeelint": "^0.5.0",
-    "gulp-develop-server": "^0.4.2",
+    "gulp-develop-server": "^0.5.0",
     "gulp-livereload": "^3.8.0",
     "gulp-mocha": "^2.0.1",
     "gulp-notify": "^2.2.0",

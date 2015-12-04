@@ -94,11 +94,24 @@ proto = {
       env = process.env;
       Object.keys(config).forEach((function(_this) {
         return function(option) {
+          var setting;
           if (typeof env[option.toUpperCase()] !== 'undefined') {
-            return _this.set(option, env[option.toUpperCase()]);
+            setting = env[option.toUpperCase()];
+            if (!isNaN(Number(setting))) {
+              setting = Number(setting);
+            } else if (setting.toLowerCase() === 'true') {
+              setting = true;
+            } else if (setting.toLowerCase() === 'false') {
+              setting = false;
+            } else if (setting[0] === '{' || setting[0] === '[') {
+              try {
+                setting = JSON.parse(setting);
+              } catch (undefined) {}
+            }
           } else {
-            return _this.set(option, config[option]);
+            setting = config[option];
           }
+          return _this.set(option, setting);
         };
       })(this));
     }

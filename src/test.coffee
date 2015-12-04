@@ -57,7 +57,7 @@ it 'serves html', (done) ->
             expect(err).to.not.be.ok
             expect(res).to.have.status '200'
             expect(res).to.be.html
-            expect(res.text).to.equal '{{test}}\n'
+            expect(res.text).to.equal '\n'
             done()
 
 it 'serves templates', (done) ->

@@ -62,9 +62,18 @@ proto =
             env = process.env
             Object.keys(config).forEach (option) =>
                 if typeof env[option.toUpperCase()] isnt 'undefined'
-                    @set option, env[option.toUpperCase()]
+                    setting = env[option.toUpperCase()]
+                    if not isNaN Number setting
+                        setting = Number setting
+                    else if setting.toLowerCase() is 'true'
+                        setting = true
+                    else if setting.toLowerCase() is 'false'
+                        setting = false
+                    else if setting[0] is '{' or setting[0] is '['
+                        try setting = JSON.parse setting
                 else
-                    @set option, config[option]
+                    setting = config[option]
+                @set option, setting
         return this
 
     importMiddleware: (middleware) ->

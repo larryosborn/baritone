@@ -8,7 +8,7 @@ baritone = require './app'
 app = baritone.app()
 distPath = app.get 'dist_path'
 
-app.use morgan(if app.get('env') is 'production' then 'combined' else 'dev')
+app.use morgan(if app.get('env') is 'production' then 'combined' else 'dev') if app.get('env') isnt 'test'
 app.use compression()
 app.use bodyParser.json()
 app.use bodyParser.urlencoded extended: true

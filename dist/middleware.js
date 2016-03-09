@@ -16,7 +16,9 @@ app = baritone.app();
 
 distPath = app.get('dist_path');
 
-app.use(morgan(app.get('env') === 'production' ? 'combined' : 'dev'));
+if (app.get('env') !== 'test') {
+  app.use(morgan(app.get('env') === 'production' ? 'combined' : 'dev'));
+}
 
 app.use(compression());
 

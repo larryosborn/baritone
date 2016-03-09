@@ -44,6 +44,9 @@ proto =
                 @importConfig main.require moduleId + '/config'
             catch e
                 handleImportException moduleId + '/config', e
+        stack.forEach (moduleId) =>
+            if moduleId.indexOf('.') isnt 0
+                moduleId += '/dist'
             try
                 @importMiddleware main.require moduleId + '/middleware'
             catch e

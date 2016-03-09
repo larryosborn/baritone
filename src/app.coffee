@@ -109,7 +109,7 @@ proto =
         return callback(null, indexHtml) if indexHtml
         index = path.join @get('html'), 'index.html'
         fs.readFile index, 'utf8', (err, html) =>
-            return callbackr(err) if err
+            return callback(err) if err
             indexHtml = mustache.render html, { package: @get('package'), cacheBust: Date.now() }
             @set 'indexHtml', indexHtml
             return callback null, indexHtml

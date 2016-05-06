@@ -166,7 +166,7 @@ proto = {
     return fs.readFile(index, 'utf8', (function(_this) {
       return function(err, html) {
         if (err) {
-          return callbackr(err);
+          return callback(err);
         }
         indexHtml = mustache.render(html, {
           "package": _this.get('package'),

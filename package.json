@@ -1,6 +1,6 @@
 {
   "name": "baritone",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "private": false,
   "description": "A barebone express server",
   "license": "MIT",

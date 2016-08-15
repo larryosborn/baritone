@@ -35,58 +35,59 @@ proto =
 
     app: baritone.app
 
-    import: (moduleIds) ->
-        stack = [].slice.apply arguments
-        stack.forEach (moduleId) =>
+    import: ->
+        instance.imports = [].slice.apply arguments
+        @importConfig()
+        return this
+
+    importConfig: ->
+        instance.imports.forEach (moduleId) =>
             if moduleId.indexOf('.') isnt 0
                 moduleId += '/dist'
             try
-                @importConfig main.require moduleId + '/config'
+                config = main.require moduleId + '/config'
+                if typeof config is 'object'
+                    env = process.env
+                    Object.keys(config).forEach (option) =>
+                        if typeof env[option.toUpperCase()] isnt 'undefined'
+                            setting = env[option.toUpperCase()]
+                            if not isNaN Number setting
+                                setting = Number setting
+                            else if setting.toLowerCase() is 'true'
+                                setting = true
+                            else if setting.toLowerCase() is 'false'
+                                setting = false
+                            else if setting[0] is '{' or setting[0] is '['
+                                try setting = JSON.parse setting
+                        else
+                            setting = config[option]
+                        @set option, setting
             catch e
                 handleImportException moduleId + '/config', e
-        stack.forEach (moduleId) =>
+        return this
+
+    importMiddleware: ->
+        instance.imports.forEach (moduleId) =>
             if moduleId.indexOf('.') isnt 0
                 moduleId += '/dist'
             try
-                @importMiddleware main.require moduleId + '/middleware'
+                middleware = main.require moduleId + '/middleware'
+                if not middleware.baritone
+                    @use middleware
             catch e
                 handleImportException moduleId + '/middleware', e
-        stack.forEach (moduleId) =>
+        return this
+
+    importRoutes: ->
+        instance.imports.forEach (moduleId) =>
             if moduleId.indexOf('.') isnt 0
                 moduleId += '/dist'
             try
-                @importRoutes main.require moduleId + '/routes'
+                routes = main.require moduleId + '/routes'
+                if not routes.baritone
+                    @use routes
             catch e
                 handleImportException moduleId + '/routes', e
-        return this
-
-    importConfig: (config) ->
-        if typeof config is 'object'
-            env = process.env
-            Object.keys(config).forEach (option) =>
-                if typeof env[option.toUpperCase()] isnt 'undefined'
-                    setting = env[option.toUpperCase()]
-                    if not isNaN Number setting
-                        setting = Number setting
-                    else if setting.toLowerCase() is 'true'
-                        setting = true
-                    else if setting.toLowerCase() is 'false'
-                        setting = false
-                    else if setting[0] is '{' or setting[0] is '['
-                        try setting = JSON.parse setting
-                else
-                    setting = config[option]
-                @set option, setting
-        return this
-
-    importMiddleware: (middleware) ->
-        if not middleware.baritone
-            @use middleware
-        return this
-
-    importRoutes: (routes) ->
-        if not routes.baritone
-            @use routes
         return this
 
     pjax: (req, res, view) ->
@@ -95,11 +96,10 @@ proto =
                 view: view
                 data: res.locals
         else if @get 'view engine'
-            res.render 'index', res.locals
+            res.render (view or 'index'), res.locals
         else
             @parseIndexHtml (err, html) ->
                 if err
-                    console.error err
                     return res.sendStatus 500
                 res.send html
         return this
@@ -115,6 +115,8 @@ proto =
             return callback null, indexHtml
 
     start: ->
+        @importMiddleware()
+        @importRoutes()
         use_ssl = @get 'use_ssl'
         force_ssl = @get 'force_ssl'
         base_path = @get 'base_path'
@@ -151,4 +153,4 @@ handleImportException = (moduleId, e) ->
 
 if require.main is module
     module.exports = baritone()
-    module.exports.import('.', './missing').start()
+    module.exports.import('.').start()

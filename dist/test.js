@@ -18,6 +18,10 @@ app = baritone.app();
 
 app["import"]('.');
 
+app.importMiddleware();
+
+app.importRoutes();
+
 app.get('/', function(req, res) {
   res.locals.test = 'pass';
   return app.pjax(req, res, 'index');

@@ -9,6 +9,8 @@ expect = chai.expect #http://chaijs.com/api/bdd/
 
 app = baritone.app()
 app.import '.'
+app.importMiddleware()
+app.importRoutes()
 app.get '/', (req, res) ->
     res.locals.test = 'pass'
     app.pjax req, res, 'index'

@@ -49,92 +49,89 @@ baritone.app = function() {
 proto = {
   baritone: true,
   app: baritone.app,
-  "import": function(moduleIds) {
-    var stack;
-    stack = [].slice.apply(arguments);
-    stack.forEach((function(_this) {
+  "import": function() {
+    instance.imports = [].slice.apply(arguments);
+    this.importConfig();
+    return this;
+  },
+  importConfig: function() {
+    instance.imports.forEach((function(_this) {
       return function(moduleId) {
-        var e, error;
+        var config, e, env, error;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
         try {
-          return _this.importConfig(main.require(moduleId + '/config'));
+          config = main.require(moduleId + '/config');
+          if (typeof config === 'object') {
+            env = process.env;
+            return Object.keys(config).forEach(function(option) {
+              var setting;
+              if (typeof env[option.toUpperCase()] !== 'undefined') {
+                setting = env[option.toUpperCase()];
+                if (!isNaN(Number(setting))) {
+                  setting = Number(setting);
+                } else if (setting.toLowerCase() === 'true') {
+                  setting = true;
+                } else if (setting.toLowerCase() === 'false') {
+                  setting = false;
+                } else if (setting[0] === '{' || setting[0] === '[') {
+                  try {
+                    setting = JSON.parse(setting);
+                  } catch (undefined) {}
+                }
+              } else {
+                setting = config[option];
+              }
+              return _this.set(option, setting);
+            });
+          }
         } catch (error) {
           e = error;
           return handleImportException(moduleId + '/config', e);
         }
       };
     })(this));
-    stack.forEach((function(_this) {
+    return this;
+  },
+  importMiddleware: function() {
+    instance.imports.forEach((function(_this) {
       return function(moduleId) {
-        var e, error;
+        var e, error, middleware;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
         try {
-          return _this.importMiddleware(main.require(moduleId + '/middleware'));
+          middleware = main.require(moduleId + '/middleware');
+          if (!middleware.baritone) {
+            return _this.use(middleware);
+          }
         } catch (error) {
           e = error;
           return handleImportException(moduleId + '/middleware', e);
         }
       };
     })(this));
-    stack.forEach((function(_this) {
+    return this;
+  },
+  importRoutes: function() {
+    instance.imports.forEach((function(_this) {
       return function(moduleId) {
-        var e, error;
+        var e, error, routes;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
         try {
-          return _this.importRoutes(main.require(moduleId + '/routes'));
+          routes = main.require(moduleId + '/routes');
+          if (!routes.baritone) {
+            return _this.use(routes);
+          }
         } catch (error) {
           e = error;
           return handleImportException(moduleId + '/routes', e);
         }
       };
     })(this));
-    return this;
-  },
-  importConfig: function(config) {
-    var env;
-    if (typeof config === 'object') {
-      env = process.env;
-      Object.keys(config).forEach((function(_this) {
-        return function(option) {
-          var setting;
-          if (typeof env[option.toUpperCase()] !== 'undefined') {
-            setting = env[option.toUpperCase()];
-            if (!isNaN(Number(setting))) {
-              setting = Number(setting);
-            } else if (setting.toLowerCase() === 'true') {
-              setting = true;
-            } else if (setting.toLowerCase() === 'false') {
-              setting = false;
-            } else if (setting[0] === '{' || setting[0] === '[') {
-              try {
-                setting = JSON.parse(setting);
-              } catch (undefined) {}
-            }
-          } else {
-            setting = config[option];
-          }
-          return _this.set(option, setting);
-        };
-      })(this));
-    }
-    return this;
-  },
-  importMiddleware: function(middleware) {
-    if (!middleware.baritone) {
-      this.use(middleware);
-    }
-    return this;
-  },
-  importRoutes: function(routes) {
-    if (!routes.baritone) {
-      this.use(routes);
-    }
     return this;
   },
   pjax: function(req, res, view) {
@@ -144,11 +141,10 @@ proto = {
         data: res.locals
       });
     } else if (this.get('view engine')) {
-      res.render('index', res.locals);
+      res.render(view || 'index', res.locals);
     } else {
       this.parseIndexHtml(function(err, html) {
         if (err) {
-          console.error(err);
           return res.sendStatus(500);
         }
         return res.send(html);
@@ -179,6 +175,8 @@ proto = {
   },
   start: function() {
     var base_path, callback, force_ssl, httpServer, options, protocol, server, ssl_cert_path, ssl_key_path, use_ssl;
+    this.importMiddleware();
+    this.importRoutes();
     use_ssl = this.get('use_ssl');
     force_ssl = this.get('force_ssl');
     base_path = this.get('base_path');
@@ -236,5 +234,5 @@ handleImportException = function(moduleId, e) {
 
 if (require.main === module) {
   module.exports = baritone();
-  module.exports["import"]('.', './missing').start();
+  module.exports["import"]('.').start();
 }

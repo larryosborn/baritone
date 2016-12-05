@@ -26,11 +26,11 @@ config = {
 try {
   buildFile = path.join(basePath, 'build.json');
   config.build = require(buildFile);
-} catch (undefined) {}
+} catch (error) {}
 
 try {
   packageFile = path.join(basePath, 'package.json');
   config["package"] = require(packageFile);
-} catch (undefined) {}
+} catch (error) {}
 
 module.exports = config;

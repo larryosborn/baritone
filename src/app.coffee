@@ -7,6 +7,7 @@ _ = require 'underscore'
 events = require 'events'
 https = require 'https'
 mustache = require 'mustache'
+socketio = require 'socket.io'
 
 instance = null
 main = null
@@ -90,6 +91,19 @@ proto =
                 handleImportException moduleId + '/routes', e
         return this
 
+    importSockets: ->
+        @set('io', new socketio()) if not @get('io')
+        instance.imports.forEach (moduleId) =>
+            if moduleId.indexOf('.') isnt 0
+                moduleId += '/dist'
+            try
+                sockets = main.require moduleId + '/sockets'
+                if not sockets.baritone
+                    @use sockets
+            catch e
+                handleImportException moduleId + '/sockets', e
+        return this
+
     pjax: (req, res, view) ->
         if req.xhr or req.query and req.query.callback
             res.jsonp
@@ -117,6 +131,7 @@ proto =
     start: ->
         @importMiddleware()
         @importRoutes()
+        @importSockets()
         use_ssl = @get 'use_ssl'
         force_ssl = @get 'force_ssl'
         base_path = @get 'base_path'
@@ -138,8 +153,10 @@ proto =
                     res.end()
                 httpServer.listen 80, @get('host'), =>
                     console.log chalk.green('Server running at') + ' ' + chalk.green.underline 'http://' + @get('host') + ':80/'
+                @get('io').listen(httpServer) if @get('use_socketio')
         else
             server = @listen @get('port'), @get('host'), callback
+            @get('io').listen(server) if @get('use_socketio')
         return server
 
 handleImportException = (moduleId, e) ->

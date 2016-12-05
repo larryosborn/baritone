@@ -1,4 +1,4 @@
-var _, baritone, chalk, events, express, fs, handleImportException, http, https, instance, main, mustache, path, proto;
+var _, baritone, chalk, events, express, fs, handleImportException, http, https, instance, main, mustache, path, proto, socketio;
 
 http = require('http');
 
@@ -17,6 +17,8 @@ events = require('events');
 https = require('https');
 
 mustache = require('mustache');
+
+socketio = require('socket.io');
 
 instance = null;
 
@@ -57,7 +59,7 @@ proto = {
   importConfig: function() {
     instance.imports.forEach((function(_this) {
       return function(moduleId) {
-        var config, e, env, error;
+        var config, e, env;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
@@ -78,7 +80,7 @@ proto = {
                 } else if (setting[0] === '{' || setting[0] === '[') {
                   try {
                     setting = JSON.parse(setting);
-                  } catch (undefined) {}
+                  } catch (error) {}
                 }
               } else {
                 setting = config[option];
@@ -97,7 +99,7 @@ proto = {
   importMiddleware: function() {
     instance.imports.forEach((function(_this) {
       return function(moduleId) {
-        var e, error, middleware;
+        var e, middleware;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
@@ -117,7 +119,7 @@ proto = {
   importRoutes: function() {
     instance.imports.forEach((function(_this) {
       return function(moduleId) {
-        var e, error, routes;
+        var e, routes;
         if (moduleId.indexOf('.') !== 0) {
           moduleId += '/dist';
         }
@@ -129,6 +131,29 @@ proto = {
         } catch (error) {
           e = error;
           return handleImportException(moduleId + '/routes', e);
+        }
+      };
+    })(this));
+    return this;
+  },
+  importSockets: function() {
+    if (!this.get('io')) {
+      this.set('io', new socketio());
+    }
+    instance.imports.forEach((function(_this) {
+      return function(moduleId) {
+        var e, sockets;
+        if (moduleId.indexOf('.') !== 0) {
+          moduleId += '/dist';
+        }
+        try {
+          sockets = main.require(moduleId + '/sockets');
+          if (!sockets.baritone) {
+            return _this.use(sockets);
+          }
+        } catch (error) {
+          e = error;
+          return handleImportException(moduleId + '/sockets', e);
         }
       };
     })(this));
@@ -177,6 +202,7 @@ proto = {
     var base_path, callback, force_ssl, httpServer, options, protocol, server, ssl_cert_path, ssl_key_path, use_ssl;
     this.importMiddleware();
     this.importRoutes();
+    this.importSockets();
     use_ssl = this.get('use_ssl');
     force_ssl = this.get('force_ssl');
     base_path = this.get('base_path');
@@ -211,9 +237,15 @@ proto = {
             return console.log(chalk.green('Server running at') + ' ' + chalk.green.underline('http://' + _this.get('host') + ':80/'));
           };
         })(this));
+        if (this.get('use_socketio')) {
+          this.get('io').listen(httpServer);
+        }
       }
     } else {
       server = this.listen(this.get('port'), this.get('host'), callback);
+      if (this.get('use_socketio')) {
+        this.get('io').listen(server);
+      }
     }
     return server;
   }

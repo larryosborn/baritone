@@ -176,7 +176,7 @@ const proto = {
     parseIndexHtml(callback) {
         const indexHtml = b.get('indexHtml');
         if (indexHtml) {
-            return callback(null, indexhtml);
+            return callback(null, indexHtml);
         }
         const index = path.join(b.get('html'), 'index.html');
         fs.readFile(index, 'utf8', (err, html) => {

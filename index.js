@@ -38,14 +38,11 @@ const proto = {
 
     express: express,
 
-    set(key, value) {
-        if (value == null) {
-            return express.application.set.call(b, key); // express uses set to get
-        }
-        else if (typeof key === 'object') {
+    resolveSetting(key, value) {
+        if (typeof key === 'object') {
             return b.setMap(key);
         }
-        let setting = process.env[key.toUpperCase()];;
+        let setting = process.env[key.toUpperCase()];
         if (setting != null) {
             if (!isNaN(setting)) {
                 setting = Number(setting);
@@ -66,13 +63,13 @@ const proto = {
         else {
             setting = value;
         }
-        express.application.set.call(b, key, setting);
-        return b;
+        return setting;
     },
 
     setMap(map) {
         Object.entries(map).forEach(([key, value]) => {
-            b.set(key, value);
+            const setting = b.resolveSetting(key, value);
+            express.application.set.call(b, key, setting);
         });
         return b;
     },
@@ -199,23 +196,26 @@ const proto = {
         b.importRoutes();
         b.importSockets();
         const use_ssl = b.get('use_ssl');
-        const force_ssl = b.get('force_ssl');
-        const base_path = b.get('base_path');
-        const ssl_key_path = b.get('ssl_key_path');
-        const ssl_cert_path = b.get('ssl_cert_path');
         const protocol = use_ssl ? 'https://' : 'http://';
+        const port = b.get('port');
+        const host = b.get('host');
+        let server;
         const callback = () => {
+            const env = b.get('env');
             const url = [protocol, server.address().address, ':', server.address().port, '/'].join('');
-            chalk.enabled = b.get('node_env') === 'development' ? true : false;
+            chalk.enabled = env === 'development';
             console.log(chalk.green('Server running at') + ' ' + chalk.green.underline(url));
         };
-        let server;
         if (use_ssl) {
+            const force_ssl = b.get('force_ssl');
+            const ssl_key_path = b.get('ssl_key_path');
+            const ssl_cert_path = b.get('ssl_cert_path');
+            const base_path = b.get('base_path');
             const options = {
                 key: fs.readFileSync(path.join(base_path, ssl_key_path || ssl_cert_path)),
                 cert: fs.readFileSync(path.join(base_path, ssl_cert_path)),
             };
-            server = https.createServer(options, b).listen(b.get('port'), b.get('host'), callback);
+            server = https.createServer(options, b).listen(port, host, callback);
             if (force_ssl === true) {
                 const httpServer = http.createServer((req, res) => {
                     res.writeHead(301, {
@@ -223,13 +223,13 @@ const proto = {
                     });
                     res.end();
                 });
-                httpServer.listen(80, b.get('host'), () => {
-                    console.log(chalk.green('Server running at') + ' ' + chalk.green.underline('http://' + b.get('host') + ':80/'));
+                httpServer.listen(80, host, () => {
+                    console.log(chalk.green('Server running at') + ' ' + chalk.green.underline('http://' + host + ':80/'));
                 });
             }
         }
         else {
-            server = b.listen(b.get('port'), b.get('host'), callback);
+            server = b.listen(port, host, callback);
         }
         if (b.get('use_socketio')) {
             b.get('io').listen(server);

@@ -1,30 +1,32 @@
-const path = require('path');
+module.exports = {
+    port: 3000,
+    host: '0.0.0.0',
+    secret: 'change me',
+    hidden: ['secret'],
+    max_age: 1000 * 60 * 60 * 24 * 365,
+    after(app) {
+        const path = require('path');
+        const basePath = app.get('base_path');
+        let build;
+        let package;
 
-exports.config = (app) => {
-    const basePath = app.get('base_path');
+        //build.json for deployment time options
+        try {
+            build = require(path.join(basePath, 'build.json'));
+        } catch (e) {}
 
-    const config = {
-        dist_path: path.join(basePath, 'dist'),
-        html: path.join(basePath, 'dist', 'html'),
-        views: path.join(basePath, 'dist', 'html'),
-        port: 3000,
-        host: '0.0.0.0',
-        secret: 'change me',
-        hidden: ['secret'],
-        max_age: 1000 * 60 * 60 * 24 * 365,
-    };
+        //package.json
+        try {
+            package = require(path.join(basePath, 'package.json'));
+        } catch (e) {}
 
-    //build.json for deployment time options
-    try {
-        const buildFile = path.join(basePath, 'build.json');
-        config.build = require(buildFile);
-    } catch (e) {}
-
-    //package.json
-    try {
-        const packageFile = path.join(basePath, 'package.json');
-        config.package = require(packageFile);
-    } catch (e) {}
-
-    return config;
+        const config = {
+            build,
+            package,
+            dist_path: path.join(basePath, 'dist'),
+            html: path.join(basePath, 'dist', 'html'),
+            views: path.join(basePath, 'dist', 'html'),
+        };
+        return config;
+    },
 };

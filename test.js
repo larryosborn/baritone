@@ -31,6 +31,7 @@ it('has imported a config', (done) => {
     expect(app.get('port')).to.exist;
     expect(app.get('host')).to.be.a('string');
     expect(app.get('env')).to.be.a('string');
+    expect(app.get('package')).to.have.property('name');
     done();
 });
 

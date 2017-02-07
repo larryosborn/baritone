@@ -84,14 +84,13 @@ const proto = {
         b.imports.forEach((moduleId) => {
             try {
                 const config = main.require(`${moduleId}/config`);
-                if (typeof config.config === 'function') {
-                    const mappedConfig = config.config(b);
+                b.setMap(_.omit(config, 'after'));
+                console.log(config);
+                if (typeof config.after === 'function') {
+                    const mappedConfig = config.after(b);
                     if (typeof mappedConfig === 'object') {
                         b.setMap(mappedConfig);
                     }
-                }
-                else {
-                    b.setMap(config);
                 }
             }
             catch (e) {

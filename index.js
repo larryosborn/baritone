@@ -85,7 +85,6 @@ const proto = {
             try {
                 const config = main.require(`${moduleId}/config`);
                 b.setMap(_.omit(config, 'after'));
-                console.log(config);
                 if (typeof config.after === 'function') {
                     const mappedConfig = config.after(b);
                     if (typeof mappedConfig === 'object') {

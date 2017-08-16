@@ -1,6 +1,6 @@
 {
   "name": "baritone",
-  "version": "7.0.1",
+  "version": "8.0.0",
   "private": false,
   "description": "A barebone express server",
   "license": "MIT",
@@ -25,7 +25,7 @@
     "method-override": "2.x",
     "morgan": "1.x",
     "mustache": "2.x",
-    "socket.io": "1.x",
+    "socket.io": "2.x",
     "lodash": "4.x"
   },
   "devDependencies": {

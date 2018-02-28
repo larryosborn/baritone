@@ -57,7 +57,9 @@ const proto = {
                 try {
                     setting = JSON.parse(setting)
                 }
-                catch (e) {}
+                catch (e) {
+                    console.error(e)
+                }
             }
         }
         else {
@@ -148,45 +150,42 @@ const proto = {
     },
 
     pjax(req, res, view) {
+        const data = {
+            view: view,
+            data: res.locals,
+        }
         if (req.xhr || req.query && req.query.callback) {
-            res.jsonp({
-                view: view,
-                data: res.locals,
-            })
+            res.jsonp(data)
         }
         else if (b.get('view engine')) {
             res.render((view || 'index'), res.locals)
         }
         else {
-            b.parseIndexHtml((err, html) => {
-                if (err) {
-                    return res.sendStatus(500)
-                }
-                res.send(html)
-            })
+            try {
+                const html = b.parseIndexHtml(data)
+                return res.send(html)
+            }
+            catch (e) {
+                return res.sendStatus(500)
+            }
         }
         return b
     },
 
-    parseIndexHtml(callback) {
-        const indexHtml = b.get('indexHtml')
-        if (indexHtml) {
-            return callback(null, indexHtml)
-        }
+    parseIndexHtml(data) {
+        let indexHtml = b.get('indexHtml')
         const index = path.join(b.get('html'), 'index.html')
-        fs.readFile(index, 'utf8', (err, html) => {
-            if (err) {
-                return callback(err)
-            }
-            const indexHtml = mustache.render(html, {
-                package: b.get('package'),
-                build: b.get('build'),
-                cacheBust: Date.now()
-            })
+        if (!indexHtml) {
+            indexHtml = fs.readFileSync(index, 'utf8')
             b.set('indexHtml', indexHtml)
-            return callback(null, indexHtml)
-        })
-        return b
+        }
+        const options = {
+            package: b.get('package'),
+            build: b.get('build'),
+            cacheBust: Date.now(),
+            json: JSON.stringify(JSON.stringify(data)),
+        }
+        return mustache.render(indexHtml, options)
     },
 
     start() {
@@ -202,7 +201,7 @@ const proto = {
             const env = b.get('env')
             const url = [protocol, server.address().address, ':', server.address().port, '/'].join('')
             chalk.enabled = env === 'development'
-            console.log(chalk.green('Server running at') + ' ' + chalk.green.underline(url))
+            console.log(`${chalk.green('Server running at')} ${chalk.green.underline(url)}`)
         }
         if (use_ssl) {
             const force_ssl = b.get('force_ssl')
@@ -222,7 +221,7 @@ const proto = {
                     res.end()
                 })
                 httpServer.listen(80, host, () => {
-                    console.log(chalk.green('Server running at') + ' ' + chalk.green.underline('http://' + host + ':80/'))
+                    console.log(`${chalk.green('Server running at')} ${chalk.green.underline(`http://${host}:80/`)}`)
                 })
             }
         }
@@ -236,7 +235,7 @@ const proto = {
     },
 }
 
-handleImportException = (moduleId, e) => {
+const handleImportException = (moduleId, e) => {
     if (e.code === 'MODULE_NOT_FOUND') {
         const errorMessage = e.message
         const missingModuleId = errorMessage.match(/'([^']+)'/)
